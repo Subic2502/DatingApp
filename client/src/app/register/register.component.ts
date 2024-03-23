@@ -23,7 +23,6 @@ export class RegisterComponent implements OnInit{
       },
       error: error => {
         this.toastr.error(error.error);
-        
       }
     })
   }
