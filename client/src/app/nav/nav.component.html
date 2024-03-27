@@ -26,7 +26,7 @@
         <div class="dropdown" *ngIf="accountService.currentUser$| async" dropdown>
             <a class="dropdown-toggle text-light text-decoration-none" dropdownToggle>Dobrodosao korisnice {{model.username}}</a>
             <div class="dropdown-menu" *dropdownMenu>
-                <a href="" class="dropdown-item">Izmeni profil</a>
+                <a href="" class="dropdown-item" routerLink="/member/edit">Izmeni profil</a>
                 <a href="" class="dropdown-item" (click)="logout()">Izloguj se</a>
             </div>
         </div>

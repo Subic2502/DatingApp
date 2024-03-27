@@ -1,4 +1,5 @@
-﻿using API.Data;
+﻿using System.Security.Claims;
+using API.Data;
 using API.DTOs;
 using API.Entities;
 using API.Interfaces;
@@ -10,8 +11,6 @@ using Microsoft.EntityFrameworkCore;
 namespace API.Controllers;
 
 [Authorize]
-[ApiController]
-[Route("api/[controller]")] // /api/users
 public class UsersController : BaseApiController
 {
     private readonly IUserRepository _userRepository;
@@ -34,6 +33,7 @@ public class UsersController : BaseApiController
         return Ok(users);
     }
 
+    [AllowAnonymous]
     [HttpGet("{username}")]
     public async Task<ActionResult<MemberDto>> GetUser(string  username)
     {
@@ -41,4 +41,21 @@ public class UsersController : BaseApiController
 
 
     }
+
+    [AllowAnonymous]
+    [HttpPut]
+    public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto)
+    {
+        var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var user = await _userRepository.GetUserByUsernameAsync(username);
+
+        if(user == null)return NotFound();
+
+        _mapper.Map(memberUpdateDto,user);
+
+        if(await _userRepository.SaveAllAsync())return NoContent();
+
+        return BadRequest("Neuspeo update korisnika.");
+    }
+
 }

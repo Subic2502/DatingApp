@@ -1,6 +1,11 @@
 export interface User {
 
-    usernmame:string;
+    username:string;
     token:string;
 
+}
+
+export interface Register{
+    username : string;
+    password : string;
 }
