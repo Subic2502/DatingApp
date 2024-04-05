@@ -1,0 +1,12 @@
+<div class="mb-3">
+    <input type={{type}}
+            [class.is-invalid]="control.touched && control.invalid"
+            class="form-control"
+            [formControl]="control"
+            placeholder={{label}}>
+    <div class="invalid-feedback" *ngIf="control.errors?.['required']">Unesi {{label}} legendo </div>   
+    <div class="invalid-feedback" *ngIf="control.errors?.['minlength']">Kralju {{label}} mora imati vise od  {{control.errors?.['minlength'].requiredLength}} slova</div>       
+    <div class="invalid-feedback" *ngIf="control.errors?.['maxlength']">Kralju {{label}} mora imati manje od {{control.errors?.['maxlength'].requiredLength}} slova</div>
+    <div class="invalid-feedback" *ngIf="control.errors?.['notMatching']">Ne poklapaju se {{label}}      legendo</div>      
+
+</div>

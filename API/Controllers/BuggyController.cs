@@ -10,43 +10,50 @@ public class BuggyController : BaseApiController
 
     private readonly DataContext _context;
 
-    public BuggyController(DataContext context){
+    public BuggyController(DataContext context)
+    {
         _context = context;
     }
 
     [Authorize]
     [HttpGet("auth")]
-    public ActionResult<String> GetSecret(){
+    public ActionResult<String> GetSecret()
+    {
         return "secret";
     }
 
     [HttpGet("not-found")]
-    public ActionResult<AppUser> GetNotFound(){
+    public ActionResult<AppUser> GetNotFound()
+    {
         var thing = _context.Users.Find(-1);
-        if(thing == null){
+        if (thing == null)
+        {
             return NotFound();
         }
         return thing;
     }
 
     [HttpGet("server-error")]
-    public ActionResult<String> GetServerError(){
-        
+    public ActionResult<String> GetServerError()
+    {
+
+        Console.Write("Uslo");
         var thing = _context.Users.Find(-1);
 
-        
+
         var thingToReturn = thing.ToString();
 
         return thingToReturn;
 
-        
+
     }
 
     [HttpGet("bad-request")]
-    public ActionResult<String> GetBadRequest(){
+    public ActionResult<String> GetBadRequest()
+    {
         return BadRequest("Ovo nije dobar request!");
     }
 
-    
+
 
 }

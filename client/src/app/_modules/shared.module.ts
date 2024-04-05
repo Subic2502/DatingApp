@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ToastrModule } from 'ngx-toastr';
 import { TabsModule } from 'ngx-bootstrap/tabs';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 
 
@@ -14,12 +16,16 @@ import { TabsModule } from 'ngx-bootstrap/tabs';
     TabsModule.forRoot(),
     ToastrModule.forRoot({
       positionClass: 'toast-bottom-right'
-    }) 
+    }),
+    BsDatepickerModule.forRoot(),
+    PaginationModule.forRoot()
   ],
   exports: [
     BsDropdownModule,
     ToastrModule,
-    TabsModule
+    TabsModule,
+    BsDatepickerModule,
+    PaginationModule
   ]
 })
 export class SharedModule { }

@@ -6,6 +6,7 @@ using API.Interfaces;
 using API.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace API.Controllers;
 
@@ -14,25 +15,29 @@ public class AccountController : BaseApiController
 
     private readonly DataContext _context;
     private readonly ITokenService _tokenService;
-    public AccountController(DataContext context, ITokenService tokenService)
+    private readonly IMapper _mapper;
+    public AccountController(DataContext context, ITokenService tokenService, IMapper mapper)
     {
         _tokenService = tokenService;
         _context = context;
+        _mapper = mapper;
     }
 
     [HttpPost("register")]//POST:api/account/register
-    public async Task<ActionResult<UserDto>>Register([FromBody] RegisterDto registerDto)
+    public async Task<ActionResult<UserDto>> Register([FromBody] RegisterDto registerDto)
     {
 
-        if(await UserExists(registerDto.Username)) return BadRequest("Username je zauzet!");
+
+        if (await UserExists(registerDto.Username)) return BadRequest("Username je zauzet!");
+
+        var user = _mapper.Map<AppUser>(registerDto);
 
         using var hmac = new HMACSHA512();
-        var user = new AppUser
-        {
-            UserName=registerDto.Username.ToLower(),
-            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-            PassordSalt = hmac.Key
-        };
+
+        user.UserName = registerDto.Username.ToLower();
+        user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password));
+        user.PassordSalt = hmac.Key;
+
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
@@ -40,7 +45,9 @@ public class AccountController : BaseApiController
         return new UserDto
         {
             Username = user.UserName,
-            Token = _tokenService.CreateToken(user)
+            Token = _tokenService.CreateToken(user),
+            KnownAs = user.KnownAs,
+            Gender = user.Gender
         };
     }
 
@@ -49,19 +56,22 @@ public class AccountController : BaseApiController
     {
         var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == loginDto.Username);
 
-        if(user == null) return Unauthorized("Nije dobar username!");
+        if (user == null) return Unauthorized("Nije dobar username!");
 
         using var hmac = new HMACSHA512(user.PassordSalt);
         var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDto.Password));
 
-        for(int i = 0;i < computedHash.Length;i++)
+        for (int i = 0; i < computedHash.Length; i++)
         {
-            if(computedHash[i] != user.PasswordHash[i]) return Unauthorized("Netacna sifra");
+            if (computedHash[i] != user.PasswordHash[i]) return Unauthorized("Netacna sifra");
         }
 
-        return new UserDto{
+        return new UserDto
+        {
             Username = user.UserName,
-            Token = _tokenService.CreateToken(user)
+            Token = _tokenService.CreateToken(user),
+            KnownAs = user.KnownAs,
+            Gender = user.Gender
         };
     }
 
