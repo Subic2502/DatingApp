@@ -16,14 +16,14 @@ namespace API.Controllers;
 [Authorize]
 public class UsersController : BaseApiController
 {
-    private readonly IUserRepository _userRepository;
 
     private readonly IMapper _mapper;
+    private readonly IUnitOfWork _uow;
 
-    public UsersController(IUserRepository userRepository, IMapper mapper)
+    public UsersController(IMapper mapper, IUnitOfWork uow)
     {
-        _userRepository = userRepository;
         _mapper = mapper;
+        _uow = uow;
     }
 
     [AllowAnonymous]
@@ -31,13 +31,13 @@ public class UsersController : BaseApiController
     public async Task<ActionResult<PagedList<MemberDto>>> GetUsers([FromQuery] UserParams userParams)
     {
 
-        var currentUser = await _userRepository.GetUserByUsernameAsync(userParams.Username);
+        var currentUser = await _uow.UserRepository.GetUserByUsernameAsync(userParams.Username);
         userParams.Username = currentUser.UserName;
 
         if (string.IsNullOrEmpty(userParams.Gender))
             userParams.Gender = currentUser.Gender == "male" ? "female" : "male";
 
-        var users = await _userRepository.GetMembersAsync(userParams);
+        var users = await _uow.UserRepository.GetMembersAsync(userParams);
 
         Response.AddPaginationHeader(new PaginationHeader(users.CurrentPage, users.PageSize, users.TotalCount, users.TotalPages));
 
@@ -49,7 +49,7 @@ public class UsersController : BaseApiController
     [HttpGet("{username}")]
     public async Task<ActionResult<MemberDto>> GetUser(string username)
     {
-        return await _userRepository.GetMemberAsync(username);
+        return await _uow.UserRepository.GetMemberAsync(username);
 
 
     }
@@ -59,13 +59,13 @@ public class UsersController : BaseApiController
     public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto)
     {
         var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var user = await _userRepository.GetUserByUsernameAsync(username);
+        var user = await _uow.UserRepository.GetUserByUsernameAsync(username);
 
         if (user == null) return NotFound();
 
         _mapper.Map(memberUpdateDto, user);
 
-        if (await _userRepository.SaveAllAsync()) return NoContent();
+        if (await _uow.Complete()) return NoContent();
 
         return BadRequest("Neuspeo update korisnika.");
     }

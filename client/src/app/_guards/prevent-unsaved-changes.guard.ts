@@ -1,11 +1,15 @@
 import { CanDeactivateFn } from '@angular/router';
 import { MemberEditComponent } from '../members/member-edit/member-edit.component';
+import { Inject, inject } from '@angular/core';
+import { ConfirmService } from '../_services/confirm.service';
 
 export const preventUnsavedChangesGuard: CanDeactivateFn<MemberEditComponent> = (component) => {
-  
-  if(component.editForm?.dirty){
-    return confirm("Da liste sigurni da želite da nastavite?");
+
+  const confirmService = inject(ConfirmService);
+
+  if (component.editForm?.dirty) {
+    return confirmService.confirm();
   }
-  
+
   return true;
 };

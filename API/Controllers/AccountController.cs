@@ -53,10 +53,10 @@ public class AccountController : BaseApiController
     [HttpPost("login")]
     public async Task<ActionResult<UserDto>> Login([FromBody] LoginDto loginDto)
     {
+
         var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == loginDto.Username);
 
         if (user == null) return Unauthorized("Nije dobar username!");
-
 
 
         return new UserDto
